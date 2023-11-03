@@ -47,10 +47,11 @@ inner_square_sizes = selected_data["Area"].tolist()
 inner_square_labels = selected_data["Name"].tolist()
 
 def draw_squares(data, screen):
-    x = (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2  # Center the larger square horizontally
-    y = (SCREEN_HEIGHT - OUTER_SQUARE_SIZE) // 2  # Center the larger square vertically
-
+    x = (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2  # Start x position
+    y = (SCREEN_HEIGHT - OUTER_SQUARE_SIZE) // 2  # Start y position
     row_width = 0  # Keep track of the total width of squares in the current row
+    max_height = 0  # Keep track of the maximum height in the current row
+
 
 
     for i, value in enumerate(data):
@@ -61,25 +62,28 @@ def draw_squares(data, screen):
         inner_square_size = inner_square_sizes[i]
         label = inner_square_labels[i]
 
-        # If adding this square doesn't exceed the row width, draw it in the current row
-        if row_width + inner_square_size <= OUTER_SQUARE_SIZE:
-            pygame.draw.rect(screen, BLACK, (x, y, inner_square_size, inner_square_size), 1)  # Draw a black outline for inner squares
-
-            # Create a font and render the label text with a smaller font size
-            font = pygame.font.Font(None, 30)  # Adjust the font size here
-            text = font.render(label, True, BLACK)
-            text_rect = text.get_rect(center=(x + inner_square_size // 2, y + inner_square_size // 2))
-
-            # Draw the label text on the square
-            screen.blit(text, text_rect)
-
-            x += inner_square_size  # Move to the next position in the same row
-            row_width += inner_square_size  # Update the total row width
-
-        else:
+        # Check if adding this square exceeds the row width or row height
+        if row_width + inner_square_size > OUTER_SQUARE_SIZE:
+            # Move to the next row, accounting for the maximum height
+            y += max_height
             x = (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2  # Start a new row
-            y += inner_square_size
-            row_width = inner_square_size  # Reset the row width
+            row_width = 0  # Reset the row width
+            max_height = 0  # Reset the maximum height
+
+        # Draw the square in the current row
+        pygame.draw.rect(screen, BLACK, (x, y, inner_square_size, inner_square_size), 1)
+        
+        # Create a font and render the label text with a smaller font size
+        font = pygame.font.Font(None, 30)  # Adjust the font size here
+        text = font.render(label, True, BLACK)
+        text_rect = text.get_rect(center=(x + inner_square_size // 2, y + inner_square_size // 2))
+
+        # Draw the label text on the square
+        screen.blit(text, text_rect)
+
+        x += inner_square_size  # Move to the next position in the same row
+        row_width += inner_square_size  # Update the total row width
+        max_height = max(max_height, inner_square_size)  # Update the maximum height in the row
 
 
 # Create a window
