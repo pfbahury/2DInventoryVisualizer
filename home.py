@@ -50,6 +50,9 @@ def draw_squares(data, screen):
     x = (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2  # Center the larger square horizontally
     y = (SCREEN_HEIGHT - OUTER_SQUARE_SIZE) // 2  # Center the larger square vertically
 
+    row_width = 0  # Keep track of the total width of squares in the current row
+
+
     for i, value in enumerate(data):
         if i >= len(inner_square_sizes):
             #print(f"Index out of range: i={i}, inner_square_sizes={inner_square_sizes}")
@@ -58,27 +61,26 @@ def draw_squares(data, screen):
         inner_square_size = inner_square_sizes[i]
         label = inner_square_labels[i]
 
-        pygame.draw.rect(screen, BLACK, (x, y, inner_square_size, inner_square_size), 1)  # Draw a black outline for inner squares
+        # If adding this square doesn't exceed the row width, draw it in the current row
+        if row_width + inner_square_size <= OUTER_SQUARE_SIZE:
+            pygame.draw.rect(screen, BLACK, (x, y, inner_square_size, inner_square_size), 1)  # Draw a black outline for inner squares
 
-        # Create a font and render the label text with a smaller font size
-        font = pygame.font.Font(None, 30)  # Adjust the font size here
-        text = font.render(label, True, BLACK)
-        text_rect = text.get_rect(center=(x + inner_square_size // 2, y + inner_square_size // 2))
+            # Create a font and render the label text with a smaller font size
+            font = pygame.font.Font(None, 30)  # Adjust the font size here
+            text = font.render(label, True, BLACK)
+            text_rect = text.get_rect(center=(x + inner_square_size // 2, y + inner_square_size // 2))
 
-        # Draw the label text on the square
-        screen.blit(text, text_rect)
+            # Draw the label text on the square
+            screen.blit(text, text_rect)
 
-        x += inner_square_size  # Increment the x position for the next square
+            x += inner_square_size  # Move to the next position in the same row
+            row_width += inner_square_size  # Update the total row width
 
-        # Move to the next row if we reach the end of the larger square
-        if x + inner_square_size > (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2 + OUTER_SQUARE_SIZE:
-            x = (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2  # Reset x position
+        else:
+            x = (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2  # Start a new row
             y += inner_square_size
+            row_width = inner_square_size  # Reset the row width
 
-            # Check if we need to move to the next row
-            if y + inner_square_size > (SCREEN_HEIGHT - OUTER_SQUARE_SIZE) // 2 + OUTER_SQUARE_SIZE:
-                x = (SCREEN_WIDTH - OUTER_SQUARE_SIZE) // 2  # Reset x position
-                y = (SCREEN_HEIGHT - OUTER_SQUARE_SIZE) // 2  # Reset y position
 
 # Create a window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
